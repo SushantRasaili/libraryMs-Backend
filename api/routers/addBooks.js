@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const { update } = require('../models/books');
 const Books = require('../models/books');
 
 // bookName: "",
@@ -9,10 +10,12 @@ const Books = require('../models/books');
 // csit: 0,
 // bca: 0
 
-
+        // ADD BOOKS ROUTE 
 router.post('/addBooks',async (req,res) => {
     try {
-          const {bookName,publication,pages,quantity,bim,csit,bca} = req.body;
+          const {publication,pages,quantity,bim,csit,bca} = req.body;
+          const bookName = req.body.bookName.toLowerCase();
+
           const addBook = new Books({
             bookname: bookName,
             publication,
@@ -45,6 +48,56 @@ router.post('/addBooks',async (req,res) => {
 //     "csit": 0,
 //     "bca": 0
 //   }
+  
+
+   //ADD OR DELETE BOOKS
+   router.put("/updateBook/:id", async (req,res) => {
+            const {quantity} = req.body;
+            console.log(quantity);
+       try {
+      const bookUpdated = await 
+      Books.findByIdAndUpdate(req.params.id,{$inc: {available: quantity,totalBooks: quantity}});
+      if(bookUpdated)
+      res.status(200).send("Successfully book updated");
+      else
+      res.status(400).send("Sorry can't update the books");
+       }
+       
+       catch(err) {
+        console.log(err);
+       }
+   })
+
+
+    //UODATE BOOK TABLE UPON LENDING THE BOOK
+    router.put("/updateBookTable", async (req,res) =>  {
+        try {
+              const updated = await Books.findByIdAndUpdate(req.body.bookId,{$inc: {available: -1}});
+              if(updated) {
+                res.status(200).send("Updated");
+              }
+              else
+              res.status(400).send("Sorry");
+        }
+        catch(err) {
+          console.log(err);
+        }
+    });
+
+
+    //UPDATE BOOK TABLE UPON DELETE BUTTON PRESSED
+          router.put("/updateBookOnDel", async (req,res) => {
+              try {
+                const updated = await Books.findByIdAndUpdate(req.body.bookId,{$inc: {available: 1}});
+                if(updated)
+                res.status(200).send("Updated");
+                else
+                res.status(400).send("Can't update the books");
+              }
+              catch(err) {
+                console.log(err);
+              }
+          });
 
 
 //search books

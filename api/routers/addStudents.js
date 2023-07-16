@@ -16,7 +16,8 @@ const Students = require('../models/students');
 // }
 
 router.post("/addStudents", async (req,res) => {
-        const {name,semester,roll,imageUrl,address,course,email} = req.body;
+        const {semester,roll,imageUrl,address,course,email} = req.body;
+        const name = req.body.name.toLowerCase();
 
         try {
           const addStudent = new Students({
@@ -59,6 +60,45 @@ router.get("/searchStudents", async (req,res) => {
    
 });
 
+    //GETTING STUDENTS INF FOR UPDATE MODE
+    router.get("/getStudent/:id", async (req,res) => {
+      try {
+        const student = await Students.findById(req.params.id);
+        if(student) {
+          res.status(200).send(student);
+        }
+        else {
+          res.status(400).send("No student with such id");
+        }
+      }
+      catch(err) {
+        console.log(err);
+      }
+    });
+
+
+      //UPDATE THE STUDENT WITH THE UPDATE MODE
+        router.put("/updateStudent/:id", async (req,res) =>  {
+
+
+          const {semester,roll,imageUrl,address,course,email} = req.body;
+          const name = req.body.name.toLowerCase();
+          try {
+            const updated = await Students.findByIdAndUpdate(req.params.id, {$set: {semester,
+              roll,imageUrl,address,
+            course,email,name}});
+            if(updated) 
+              res.status(200).send("Successfully updated");
+              else 
+              res.status(400).send("Can't update the student");
+          }
+        catch(err) {
+          console.log(err);
+        }
+          
+          
+        })
+
 
 
 //CHANGING STUDENTS CLASS
@@ -77,6 +117,25 @@ router.get("/searchStudents", async (req,res) => {
         
   });
 
+
+  //DELETING THE STUDENT
+    router.delete("/delStudent", async(req,res) => {
+      const {delId} = req.body;
+      try {
+        const deleted = await Students.findByIdAndDelete(delId);
+        if(deleted) 
+          res.status(200).send("Successfully student deleted");
+        else
+        res.status(400).send("Can't delete the student");
+      }
+      catch(err) {
+        console.log(err);
+      }
+    });
+
+
+     //UPDATING STUDENTS INFORMATIOIN
+    //  router.put("/updateStudent")
 
 
 module.exports = router;
